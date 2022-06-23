@@ -1,12 +1,12 @@
 { writeShellApplication
-, php
 , jq
-, nix-prefetch
+, nix
+, php
 }:
 
 writeShellApplication {
   name = "composer-nix";
-  runtimeInputs = [ php.packages.composer jq nix-prefetch ];
+  runtimeInputs = [ php.packages.composer jq nix ];
   text = ''
     PACKAGE_JSON="''${COMPOSER:-./composer.json}"
     PACKAGE_LOCK=''${PACKAGE_JSON//.json/.lock}
@@ -15,7 +15,7 @@ writeShellApplication {
 
     OUT=$(mktemp)
 
-    echo "{ fetchzip }:" > "$OUT"
+    echo "{ fetchzip }:" >> "$OUT"
     echo "{" >> "$OUT"
 
     fetch_path() {
@@ -23,9 +23,13 @@ writeShellApplication {
     }
 
     fetch_zip() {
-      echo -n "fetchzip "
-      nix-prefetch fetchzip --quiet --output nix --name "$1" --url "$2" --extension zip \
-        | sed -e 's/^/  /g' -e 's/^  {/{/' -e 's/}$/};/'
+      SHASUM=$(nix-prefetch-url "$2" --unpack 2>/dev/null)
+      echo "fetchzip {"
+      echo "    name = \"$1\";"
+      echo "    url = \"$2\";"
+      echo "    sha256 = \"$SHASUM\";"
+      echo "    extension = \"zip\";"
+      echo "  };"
     }
 
     while read -r PACKAGE_NAME
