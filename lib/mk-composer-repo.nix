@@ -54,6 +54,7 @@ in runCommand "${composerJsonData.name}-dependencies" {
   pushd $out
   composer config repo.packagist false
   composer config repo.nix '{"type": "composer", "url": "file://'"$out"'"}'
-  composer update --no-autoloader --no-install --no-cache --no-scripts --no-plugins --no-interaction --no-ansi --no-progress --lock
+  composer update --ignore-platform-reqs --no-autoloader --no-install --no-cache --no-scripts --no-plugins \
+    --no-interaction --no-ansi --no-progress --lock
   popd
 ''
