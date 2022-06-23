@@ -1,0 +1,10 @@
+{
+    "name": "tristanpemble/example",
+    "require": {
+        "composer/composer": "^2.3",
+        "tristanpemble/local-lib": "dev-main"
+    },
+    "repositories": [
+        {"type": "path", "url": "./*"}
+    ]
+}
