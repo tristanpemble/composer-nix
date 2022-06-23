@@ -24,7 +24,7 @@ writeShellApplication {
 
     fetch_zip() {
       echo -n "fetchzip "
-      nix-prefetch fetchzip --quiet --output nix --name "$1" --url "$2#$1.zip" \
+      nix-prefetch fetchzip --quiet --output nix --name "$1" --url "$2" --extension zip \
         | sed -e 's/^/  /g' -e 's/^  {/{/' -e 's/}$/};/'
     }
 
