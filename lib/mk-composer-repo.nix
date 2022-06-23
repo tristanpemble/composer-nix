@@ -2,6 +2,7 @@
 , writeText
 , lib
 , php
+, callPackage
 }:
 
 let
@@ -19,7 +20,7 @@ in
 let
   composerJsonData = lib.importJSON composerJson // { repositories = []; };
   composerLockData = lib.importJSON composerLock;
-  composerNixData = import (builtins.toString composerNix);
+  composerNixData = callPackage (builtins.toString composerNix) {};
 
   packageManifestData = {
     packages = builtins.listToAttrs (builtins.map (pkg: lib.nameValuePair pkg.name {
