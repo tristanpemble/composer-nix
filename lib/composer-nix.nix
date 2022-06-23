@@ -13,8 +13,10 @@ writeShellApplication {
     PACKAGE_NIX=''${PACKAGE_JSON//.json/.nix}
     PACKAGE_SOURCES=$(jq -rc '.packages + .["packages-dev"] | sort_by(.name) | .[] | { name: .name, version: .version } + (if .dist? then .dist else .source end) | .name, .version, .type, .url, .reference' < "$PACKAGE_LOCK")
 
-    echo "{ fetchzip }:" > "$PACKAGE_NIX"
-    echo "{" >> "$PACKAGE_NIX"
+    OUT=$(mktemp)
+
+    echo "{ fetchzip }:" > "$OUT"
+    echo "{" >> "$OUT"
 
     fetch_path() {
       echo -e "$2;"
@@ -34,11 +36,11 @@ writeShellApplication {
       read -r PACKAGE_REF
 
       echo Prefetching "$PACKAGE_NAME..."
-      echo -n "  \"$PACKAGE_NAME\".\"$PACKAGE_VERSION\" = " >> "$PACKAGE_NIX"
+      echo -n "  \"$PACKAGE_NAME\".\"$PACKAGE_VERSION\" = " >> "$OUT"
 
       case "$PACKAGE_TYPE" in
         path|zip)
-          "fetch_$PACKAGE_TYPE" "$PACKAGE_NAME" "$PACKAGE_URL" "$PACKAGE_REF" >> "$PACKAGE_NIX"
+          "fetch_$PACKAGE_TYPE" "$PACKAGE_NAME" "$PACKAGE_URL" "$PACKAGE_REF" >> "$OUT"
           ;;
         *)
           echo "$PACKAGE_NAME@$PACKAGE_REF uses an unsupported package type of $PACKAGE_TYPE. Open a ticket to request support:"
@@ -47,6 +49,8 @@ writeShellApplication {
           ;;
       esac
     done <<< "$PACKAGE_SOURCES"
-    echo "}" >> "$PACKAGE_NIX"
+    echo "}" >> "$OUT"
+
+    mv -f "$OUT" "$PACKAGE_NIX"
   '';
 }
