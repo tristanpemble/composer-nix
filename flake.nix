@@ -22,7 +22,7 @@
         default.program = "${self.packages.${system}.composer-nix}/bin/composer-nix";
       });
       overlays.default = final: prev: {
-        inherit (self.packages.${final.system}) composer-nix;
+        composer-nix = final.callPackage ./lib/composer-nix.nix {};
         mkComposerRepo = final.callPackage ./lib/mk-composer-repo.nix {};
       };
       checks = eachDefaultSystemMap (system: with import nixpkgs { inherit system; overlays = [ self.overlays.default ]; }; {
